@@ -15,5 +15,9 @@ RUN_DIR      = $(PROJECT_PATH)/run
 SRC_DIR      = $(PROJECT_PATH)/src
 TB_DIR       = $(PROJECT_PATH)/tb
 
+# set shell to be bash
+# https://www.gnu.org/software/make/manual/html_node/Choosing-the-Shell.html
+SHELL = /bin/bash
+
 # include modelsim flow makefile
 include $(SCRIPTS_DIR)/modelsim_flow.mk
