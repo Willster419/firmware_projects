@@ -54,7 +54,7 @@ VSIM                           ?= vsim
 # set some commonly used args
 # location of modelsim ini to use and arg creation
 MODELSIM_INI_PATH              ?= $(LIB_DIR)/modelsim.ini
-MODELSIM_INI                    = -modelsimini $(MODELSIM_INI_PATH)
+MODELSIM_INI                    = -modelsimini "$(MODELSIM_INI_PATH)"
 
 # set mode to run the simulator in
 # options:
@@ -71,11 +71,14 @@ VSIM_SEARCH_LIBS                = $(addprefix -L , $(SEARCH_LIBS))
 
 # create run targets
 # target to copy the modelsim ini to the lib location
+# from modelsim manual:
+# "Copies the default modelsim.ini file from the ModelSim installation directory to the current directory.This argument is intended only for making a copy of the default modelsim.ini file to the current directory."
+# https://stackoverflow.com/a/17203203/3128017
 .PHONY: copy_modelsim_ini
 copy_modelsim_ini:
-	mkdir -p $(LIB_DIR)
-	mkdir -p $(RUN_DIR)
-	test ! -f $(MODELSIM_INI_PATH) && echo "Copying modelsim ini to $(MODELSIM_INI_PATH)" && $(VMAP) -c $(MODELSIM_INI_PATH) || echo "modelsim ini already exists"
+	@mkdir -p $(LIB_DIR)
+	@mkdir -p $(RUN_DIR)
+	@if [ ! -f $(MODELSIM_INI_PATH) ]; then echo "Copying modelsim ini to $(MODELSIM_INI_PATH)"; cd $(LIB_DIR); $(VMAP) -c; else echo "modelsim ini already exists"; fi
 
 # variable checks
 ifndef LIB_DIR
