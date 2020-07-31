@@ -1,2 +1,3 @@
-# ignore any files and folders with ".notrack" in the name
-*.notrack
+# ignore build and run folders
+/build
+/run
