@@ -1,8 +1,11 @@
 {
 	"folders": [
-		{
-			"path": "."
-		}
+    {
+      "path": "."
+    },
+    {
+      "path": "..\\..\\..\\..\\..\\Modeltech_pe_edu_10.4a"
+    }
   ],
   "settings": {}
 }
