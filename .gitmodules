@@ -1,0 +1,4 @@
+[submodule "svunit"]
+	path = svunit
+	url = https://github.com/tudortimi/svunit.git
+	branch = master
