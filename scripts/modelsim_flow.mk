@@ -52,6 +52,13 @@ VOPT                           ?= vopt
 VSIM                           ?= vsim
 
 #####################################################################
+# makefile options
+# control if using the vopt step
+# some older versions of modelsim don't come with it
+USE_VOPT                       ?= OFF
+#####################################################################
+
+#####################################################################
 # set some commonly used args
 # location of modelsim ini to use and arg creation
 MODELSIM_INI_PATH              ?= $(LIB_DIR)/modelsim.ini
@@ -71,6 +78,15 @@ VSIM_SEARCH_LIBS                = $(addprefix -L , $(SEARCH_LIBS))
 # add ability for user to run do files before running sim
 VSIM_DO_FILES                   = $(addprefix -do , $(DO_FILES))
 
+# add ability for user to run wave do fiels before running sim
+# only add these to vsim if it's in gui mode
+ifeq ($(strip $(SIM_RUN_MODE)),-i)
+  VSIM_WAVE_DO_FILES            = $(addprefix -do , $(WAVE_DO_FILES))
+endif
+ifeq ($(strip $(SIM_RUN_MODE)),-gui)
+  VSIM_WAVE_DO_FILES            = $(addprefix -do , $(WAVE_DO_FILES))
+endif
+
 # create the name of the logfile to make
 # https://www.computerhope.com/unix/udate.htm
 LOG_TIMESTAMP                   = $(shell date +%F_%H-%M-%S)
@@ -87,6 +103,8 @@ ifdef UVM_TESTNAME
   LOG_NAME                      = $(UVM_TESTNAME)_$(LOG_TIMESTAMP).log
 endif
 
+# add acc to vopt during optimization
+VOPT_ARGS                      += +acc
 #####################################################################
 
 #####################################################################
@@ -132,11 +150,31 @@ map_top_lib:
 	@echo "-----------------------------------------------"
 	@echo ""
 
-# optimize targets (if optimize is on)? TODO
+# configure usage of optimize
+VOPT_TARGET   :=
+VSIM_TOP       = $(TOP_LIB).$(TOP_DESIGN_UNIT)
+ifeq ($(strip $(USE_VOPT)),ON)
+  VOPT_TARGET  = optimize
+  VSIM_TOP     = optimized
+endif
+
+# optimize targets
+.INTERMEDIATE: optimize
+optimize: $(TOP_LIB_PATH)/optimized/depends
+
+$(TOP_LIB_PATH)/optimized/depends: $(COMPILE_TARGETS)
+	@rm -rf $@
+	@echo ""
+	@echo "-----------------------------------------------"
+	@echo "Running optimization"
+	$(VOPT) $(MODELSIM_INI) $(VSIM_SEARCH_LIBS) $(VOPT_ARGS) $(VSIM_SEARCH_LIBS) $(TOP_LIB).$(TOP_DESIGN_UNIT) -o optimized
+	@echo "-----------------------------------------------"
+	@echo ""
+	@touch $@
 
 # complete run target
 .PHONY: simit
-simit: create_runs create_libs copy_modelsim_ini compile_all map_top_lib sim_only
+simit: create_runs create_libs copy_modelsim_ini $(COMPILE_TARGETS) map_top_lib $(VOPT_TARGET) sim_only
 
 # sim target
 .PHONY: sim_only
@@ -144,7 +182,7 @@ sim_only:
 	@echo ""
 	@echo "-----------------------------------------------"
 	@echo "Running sim"
-	cd $(RUN_DIR); $(VSIM) $(MODELSIM_INI) $(SIM_RUN_MODE) $(VSIM_SEARCH_LIBS) $(VSIM_ARGS) -logfile $(LOG_NAME) $(VSIM_DO_FILES) -do "run 0" -do "run -all" $(TOP_LIB).$(TOP_DESIGN_UNIT)
+	cd $(RUN_DIR); $(VSIM) $(MODELSIM_INI) $(SIM_RUN_MODE) $(VSIM_SEARCH_LIBS) $(VSIM_ARGS) -logfile $(LOG_NAME) $(VSIM_DO_FILES) $(VSIM_WAVE_DO_FILES) -do "run 0" -do "run -all" $(VSIM_TOP)
 	@echo "-----------------------------------------------"
 	@echo ""
 
