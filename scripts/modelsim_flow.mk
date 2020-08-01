@@ -51,6 +51,7 @@ VLOG                           ?= vlog
 VOPT                           ?= vopt
 VSIM                           ?= vsim
 
+#####################################################################
 # set some commonly used args
 # location of modelsim ini to use and arg creation
 MODELSIM_INI_PATH              ?= $(LIB_DIR)/modelsim.ini
@@ -67,20 +68,110 @@ SIM_RUN_MODE                   ?= -c
 # https://stackoverflow.com/a/11515360/3128017
 VSIM_SEARCH_LIBS                = $(addprefix -L , $(SEARCH_LIBS))
 
+# add ability for user to run do files before running sim
+VSIM_DO_FILES                   = $(addprefix -do , $(DO_FILES))
 
+# create the name of the logfile to make
+# https://www.computerhope.com/unix/udate.htm
+LOG_TIMESTAMP                   = $(shell date +%F_%H-%M-%S)
+LOG_NAME                       ?= log_$(LOG_TIMESTAMP).log
 
+# if not uvm, allow a default test name for that parameter
+ifdef TESTNAME
+  LOG_NAME                      = $(TESTNAME)_$(LOG_TIMESTAMP).log
+endif
+
+# add uvm test name arg
+ifdef UVM_TESTNAME
+  VSIM_ARGS                    += "+UVM_TESTNAME=$(UVM_TESTNAME)"
+  LOG_NAME                      = $(UVM_TESTNAME)_$(LOG_TIMESTAMP).log
+endif
+
+#####################################################################
+
+#####################################################################
 # create run targets
-# target to copy the modelsim ini to the lib location
+# target to copy the modelsim ini to the lib location if it doesn't
+# already exist
 # from modelsim manual:
 # "Copies the default modelsim.ini file from the ModelSim installation directory to the current directory.This argument is intended only for making a copy of the default modelsim.ini file to the current directory."
 # https://stackoverflow.com/a/17203203/3128017
+# https://www.intel.com/content/www/us/en/programmable/support/support-resources/knowledge-base/solutions/rd05172000_4425.html
 .PHONY: copy_modelsim_ini
 copy_modelsim_ini:
 	@mkdir -p $(LIB_DIR)
 	@mkdir -p $(RUN_DIR)
-	@if [ ! -f $(MODELSIM_INI_PATH) ]; then echo "Copying modelsim ini to $(MODELSIM_INI_PATH)"; cd $(LIB_DIR); $(VMAP) -c; else echo "modelsim ini already exists"; fi
+	@if [ ! -f $(MODELSIM_INI_PATH) ]; \
+	then echo "Copying modelsim ini to $(MODELSIM_INI_PATH)"; \
+	cd $(LIB_DIR); \
+	$(VMAP) -c; \
+	else echo "modelsim ini already exists"; \
+	fi
 
+# compile targets
+.INTERMEDIATE: compile_all $(COMPILE_TARGETS)
+compile_all: $(COMPILE_TARGETS)
+
+# map the top library to modelsim's "work" lib
+.PHONY: map_top_lib
+map_top_lib:
+	@echo ""
+	@echo "-----------------------------------------------"
+	@echo "Mapping work to top lib"
+	$(VMAP) $(MODELSIM_INI) $(TOP_LIB) work
+	@echo "-----------------------------------------------"
+	@echo ""
+
+# optimize targets (if optimize is on)? TODO
+
+# complete run target
+.PHONY: simit
+simit: copy_modelsim_ini compile_all map_top_lib sim_only
+
+# sim target
+.PHONY: sim_only
+sim_only:
+	@echo ""
+	@echo "-----------------------------------------------"
+	@echo "Running sim"
+	$(VSIM) $(MODELSIM_INI) $(SIM_RUN_MODE) $(VSIM_SEARCH_LIBS) $(VSIM_ARGS) -logfile $(LOG_NAME) $(VSIM_DO_FILES) -do "run 0" -do "run -all" $(TOP_LIB).$(TOP_DESIGN_UNIT)
+	@echo "-----------------------------------------------"
+	@echo ""
+
+# clean targets
+.PHONY: clean_all $(CLEAN_TARGETS) clean_libs clean_runs
+clean_all: $(CLEAN_TARGETS) clean_libs clean_runs
+
+clean_libs:
+	@echo ""
+	@echo "-----------------------------------------------"
+	@echo "Cleaning lib folder..."
+	rm -rf $(LIB_DIR)
+	@echo "-----------------------------------------------"
+	@echo ""
+
+clean_runs:
+	@echo ""
+	@echo "-----------------------------------------------"
+	@echo "Cleaning run folder..."
+	rm -rf $(RUN_DIR)
+	@echo "-----------------------------------------------"
+	@echo ""
+
+#####################################################################
+
+#####################################################################
 # variable checks
+ifndef TOP_LIB
+  $(warning TOP_LIB not set - please set before including modelsim_flow.mk)
+  MODELSIM_FLOW_ABORT := 1
+endif
+
+ifndef TOP_DESIGN_UNIT
+  $(warning TOP_DESIGN_UNIT not set - please set before including modelsim_flow.mk)
+  MODELSIM_FLOW_ABORT := 1
+endif
+
 ifndef LIB_DIR
   $(warning LIB_DIR not set - please set before including modelsim_flow.mk)
   MODELSIM_FLOW_ABORT := 1
@@ -94,6 +185,7 @@ endif
 ifdef MODELSIM_FLOW_ABORT
   $(error variable issues in modelsim_flow.mk, aborting)
 endif
+#####################################################################
 
 __MODELSIM_FLOW_GUARD := 1
 endif
