@@ -18,20 +18,29 @@ TOP_DESIGN_UNIT             ?= top
 
 # add this lib name to search libs
 SEARCH_LIBS                 += $(TB_LIB_NAME)
+
+# add the tb to the compile targets list
+COMPILE_TARGETS             += $(TB_LIB_NAME)
 #####################################################################
 
 #####################################################################
 # TARGETS
 $(TB_LIB_NAME): $(TB_LIB_PATH)/depends
 $(TB_LIB_PATH)/depends: $(TB_VHDL_SRC) $(TB_VERILOG_SRC)
-	rm -rf $@
+	@rm -rf $@
 	@echo ""
 	@echo "-----------------------------------------------"
 	@if [ ! -d $(TB_LIB_PATH) ]; \
 	then echo "$(TB_LIB_NAME): Creating lib"; $(VLIB) $(TB_LIB_PATH); \
 	else echo "$(TB_LIB_NAME): Library already exists"; fi
+	@echo "-----------------------------------------------"
+	@echo ""
+	@echo "-----------------------------------------------"
 	@echo "$(TB_LIB_NAME): map to modelsim ini"
 	$(VMAP) $(MODELSIM_INI) $(TB_LIB_NAME) $(TB_LIB_PATH)
+	@echo "-----------------------------------------------"
+	@echo ""
+	@echo "-----------------------------------------------"
 ifdef TB_VHDL_SRC
 	@echo "$(TB_LIB_NAME): Compile VHDL SRC"
 	$(VCOM) $(MODELSIM_INI) $(TB_VCOM_ARGS) -work $(TB_LIB_NAME) $(TB_VHDL_SRC)
@@ -46,7 +55,7 @@ ifdef TB_SV_SRC
 endif
 	@echo "-----------------------------------------------"
 	@echo ""
-	touch $@
+	@touch $@
 
 # clean the library path
 # phony is set in modelsim_flow.mk

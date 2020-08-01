@@ -64,13 +64,12 @@ $(HELLO_WORLD_LIB_PATH)/depends: $(HELLO_WORLD_VHDL_SRC) $(HELLO_WORLD_VERILOG_S
 ifdef HELLO_WORLD_VHDL_SRC
 	@echo "$(HELLO_WORLD_LIB_NAME): compile VHDL SRC"
 	$(VCOM) $(MODELSIM_INI) $(HELLO_WORLD_VCOM_ARGS) -work $(HELLO_WORLD_LIB_NAME) $(HELLO_WORLD_VHDL_SRC)
-	@echo "-----------------------------------------------"
 endif
 ifdef HELLO_WORLD_VERILOG_SRC
 	@echo "$(HELLO_WORLD_LIB_NAME): compile Verilog SRC"
 	$(VLOG) $(MODELSIM_INI) $(HELLO_WORLD_VLOG_ARGS) -work $(HELLO_WORLD_LIB_NAME) $(HELLO_WORLD_VERILOG_SRC)
-	@echo "-----------------------------------------------"
 endif
+	@echo "-----------------------------------------------"
 	@echo ""
 	@touch $@
 
