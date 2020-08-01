@@ -22,7 +22,8 @@ SEARCH_LIBS                 += $(HELLO_WORLD_LIB_NAME)
 HELLO_WORLD_SRC_PATH         = $(HELLO_WORLD_ROOT)/src
 
 # define source files here
-HELLO_WORLD_VHDL_SRC        += $(HELLO_WORLD_SRC_PATH)/temp.vhd
+HELLO_WORLD_VHDL_SRC        += $(HELLO_WORLD_SRC_PATH)/pipeline.vhd
+HELLO_WORLD_VHDL_SRC        += $(HELLO_WORLD_SRC_PATH)/hello_world.vhd
 #HELLO_WORLD_VERILOG_SRC     += $(HELLO_WORLD_SRC_PATH)temp.v
 #####################################################################
 
