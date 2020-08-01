@@ -128,7 +128,7 @@ map_top_lib:
 	@echo ""
 	@echo "-----------------------------------------------"
 	@echo "Mapping work to top lib"
-	$(VMAP) $(MODELSIM_INI) $(TOP_LIB) work
+	$(VMAP) $(MODELSIM_INI) work $(TOP_LIB_PATH)
 	@echo "-----------------------------------------------"
 	@echo ""
 
@@ -179,6 +179,11 @@ endif
 
 ifndef TOP_DESIGN_UNIT
   $(warning TOP_DESIGN_UNIT not set - please set before including modelsim_flow.mk)
+  MODELSIM_FLOW_ABORT := 1
+endif
+
+ifndef TOP_LIB_PATH
+  $(warning TOP_LIB_PATH not set - please set before including modelsim_flow.mk)
   MODELSIM_FLOW_ABORT := 1
 endif
 

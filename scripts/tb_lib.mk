@@ -13,8 +13,11 @@ ifndef __TB_LIB_GUARD
 # NAMES AND PATHS
 TB_LIB_NAME                  = tb_lib
 TB_LIB_PATH                  = $(LIB_DIR)/$(TB_LIB_NAME)
+
+# set the top params as the tb lib
 TOP_LIB                      = $(TB_LIB_NAME)
 TOP_DESIGN_UNIT             ?= top
+TOP_LIB_PATH                 = $(TB_LIB_PATH)
 
 # add this lib name to search libs
 SEARCH_LIBS                 += $(TB_LIB_NAME)
