@@ -3,26 +3,26 @@
 -- top design module
 -- Willster419
 -- 2020-07-31
--- A pipeline module for adding delay to a sample design
+-- 
 ---------------------------------------------------------------------
 
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity pipeline is
+entity hello_world is
   generic (
 
   );
   port (
     
   );
-end entity pipeline;
+end entity hello_world;
 
-architecture rtl of pipeline is
+architecture rtl of hello_world is
   
 begin
   
   
   
-end architecture rtl;
+end architecture hello_world;
