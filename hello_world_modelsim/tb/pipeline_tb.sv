@@ -44,19 +44,24 @@ module pipeline_tb;
     for (int i = 0; i < 20; i++) begin
       @(posedge clk);
     end
+
+    $display("Setting reset down and sending data");
     rst = 1'b0;
+    @(posedge clk);
 
     // send in a valid input (driver)
     input_data = 8'hDB;
-    input_valid = 1'b0;
+    input_valid = 1'b1;
     @(posedge clk);
     input_data = 8'h0;
     input_valid = 1'b0;
     @(posedge clk);
+    $display("Data sent, wait for output valid");
 
     //wait for the output and finish
     @(posedge output_valid);
     @(posedge clk);
+    $display("Done!");
     $finish;
   end
 
