@@ -22,6 +22,9 @@ SHELL = /bin/bash
 # provide it with a root path
 HELLO_WORLD_ROOT = $(PROJECT_PATH)
 
+# add a do file
+WAVE_DO_FILES += $(PROJECT_PATH)/scripts/tb_waves.do
+
 # include module makefiles here
 include hello_world_lib.mk
 
