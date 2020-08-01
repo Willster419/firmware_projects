@@ -26,7 +26,7 @@ COMPILE_TARGETS             += $(TB_LIB_NAME)
 #####################################################################
 # TARGETS
 $(TB_LIB_NAME): $(TB_LIB_PATH)/depends
-$(TB_LIB_PATH)/depends: $(TB_VHDL_SRC) $(TB_VERILOG_SRC)
+$(TB_LIB_PATH)/depends: $(TB_VHDL_SRC) $(TB_VER_SRC) $(TB_SV_SRC)
 	@rm -rf $@
 	@echo ""
 	@echo "-----------------------------------------------"
