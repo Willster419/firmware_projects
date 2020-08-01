@@ -29,7 +29,7 @@ include hello_world_lib.mk
 TOP_DESIGN_UNIT                 = hello_world_tb
 
 # define tb src
-TB_SV_SRC                      += $(TB_DIR)/hello_world_tb.sv
+TB_SV_SRC                      += $(TB_DIR)/pipeline_tb.sv
 
 # include tb makefile
 USE_TB_LIB                      = ON

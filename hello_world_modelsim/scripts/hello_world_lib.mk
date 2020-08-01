@@ -23,8 +23,10 @@ HELLO_WORLD_SRC_PATH         = $(HELLO_WORLD_ROOT)/src
 
 # define source files here
 HELLO_WORLD_VHDL_SRC        += $(HELLO_WORLD_SRC_PATH)/pipeline.vhd
-HELLO_WORLD_VHDL_SRC        += $(HELLO_WORLD_SRC_PATH)/hello_world.vhd
-#HELLO_WORLD_VERILOG_SRC     += $(HELLO_WORLD_SRC_PATH)temp.v
+#HELLO_WORLD_VHDL_SRC        += $(HELLO_WORLD_SRC_PATH)/hello_world.vhd
+
+# compile arguements
+HELLO_WORLD_VCOM_ARGS       += -2008
 #####################################################################
 
 #####################################################################
@@ -45,25 +47,32 @@ $(HELLO_WORLD_LIB_NAME): $(HELLO_WORLD_LIB_PATH)/depends
 # 6. create depends file, using new timestamp
 # https://www.gnu.org/software/make/manual/html_node/Automatic-Variables.html
 $(HELLO_WORLD_LIB_PATH)/depends: $(HELLO_WORLD_VHDL_SRC) $(HELLO_WORLD_VERILOG_SRC)
-	rm -rf $@
+	@rm -rf $@
 	@echo ""
 	@echo "-----------------------------------------------"
 	@if [ ! -d $(HELLO_WORLD_LIB_PATH) ]; \
 	then echo "$(HELLO_WORLD_LIB_NAME): Creating lib"; $(VLIB) $(HELLO_WORLD_LIB_PATH); \
 	else echo "$(HELLO_WORLD_LIB_NAME): Library already exists"; fi
+	@echo "-----------------------------------------------"
+	@echo ""
+	@echo "-----------------------------------------------"
 	@echo "$(HELLO_WORLD_LIB_NAME): map to modelsim ini"
 	$(VMAP) $(MODELSIM_INI) $(HELLO_WORLD_LIB_NAME) $(HELLO_WORLD_LIB_PATH)
+	@echo "-----------------------------------------------"
+	@echo ""
+	@echo "-----------------------------------------------"
 ifdef HELLO_WORLD_VHDL_SRC
 	@echo "$(HELLO_WORLD_LIB_NAME): compile VHDL SRC"
 	$(VCOM) $(MODELSIM_INI) $(HELLO_WORLD_VCOM_ARGS) -work $(HELLO_WORLD_LIB_NAME) $(HELLO_WORLD_VHDL_SRC)
+	@echo "-----------------------------------------------"
 endif
 ifdef HELLO_WORLD_VERILOG_SRC
 	@echo "$(HELLO_WORLD_LIB_NAME): compile Verilog SRC"
 	$(VLOG) $(MODELSIM_INI) $(HELLO_WORLD_VLOG_ARGS) -work $(HELLO_WORLD_LIB_NAME) $(HELLO_WORLD_VERILOG_SRC)
-endif
 	@echo "-----------------------------------------------"
+endif
 	@echo ""
-	touch $@
+	@touch $@
 
 # clean the library path
 # phony is set in modelsim_flow.mk

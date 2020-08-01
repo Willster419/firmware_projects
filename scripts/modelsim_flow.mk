@@ -90,6 +90,14 @@ endif
 #####################################################################
 
 #####################################################################
+# create lib and run directories
+.PHONY: create_runs create_libs
+create_libs:
+	@mkdir -p $(LIB_DIR)
+
+create_runs:
+	@mkdir -p $(RUN_DIR)
+
 # create run targets
 # target to copy the modelsim ini to the lib location if it doesn't
 # already exist
@@ -98,19 +106,21 @@ endif
 # https://stackoverflow.com/a/17203203/3128017
 # https://www.intel.com/content/www/us/en/programmable/support/support-resources/knowledge-base/solutions/rd05172000_4425.html
 .PHONY: copy_modelsim_ini
-copy_modelsim_ini:
-	@mkdir -p $(LIB_DIR)
-	@mkdir -p $(RUN_DIR)
+copy_modelsim_ini: create_libs
+	@echo ""
+	@echo "-----------------------------------------------"
 	@if [ ! -f $(MODELSIM_INI_PATH) ]; \
 	then echo "Copying modelsim ini to $(MODELSIM_INI_PATH)"; \
 	cd $(LIB_DIR); \
 	$(VMAP) -c; \
 	else echo "modelsim ini already exists"; \
 	fi
+	@echo "-----------------------------------------------"
+	@echo ""
 
 # compile targets
 .INTERMEDIATE: compile_all $(COMPILE_TARGETS)
-compile_all: $(COMPILE_TARGETS)
+compile_all: create_runs create_libs copy_modelsim_ini $(COMPILE_TARGETS)
 
 # map the top library to modelsim's "work" lib
 .PHONY: map_top_lib
@@ -126,7 +136,7 @@ map_top_lib:
 
 # complete run target
 .PHONY: simit
-simit: copy_modelsim_ini compile_all map_top_lib sim_only
+simit: create_runs create_libs copy_modelsim_ini compile_all map_top_lib sim_only
 
 # sim target
 .PHONY: sim_only
@@ -134,7 +144,7 @@ sim_only:
 	@echo ""
 	@echo "-----------------------------------------------"
 	@echo "Running sim"
-	$(VSIM) $(MODELSIM_INI) $(SIM_RUN_MODE) $(VSIM_SEARCH_LIBS) $(VSIM_ARGS) -logfile $(LOG_NAME) $(VSIM_DO_FILES) -do "run 0" -do "run -all" $(TOP_LIB).$(TOP_DESIGN_UNIT)
+	cd $(RUN_DIR); $(VSIM) $(MODELSIM_INI) $(SIM_RUN_MODE) $(VSIM_SEARCH_LIBS) $(VSIM_ARGS) -logfile $(LOG_NAME) $(VSIM_DO_FILES) -do "run 0" -do "run -all" $(TOP_LIB).$(TOP_DESIGN_UNIT)
 	@echo "-----------------------------------------------"
 	@echo ""
 
