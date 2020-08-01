@@ -26,7 +26,8 @@ HELLO_WORLD_ROOT = $(PROJECT_PATH)
 include hello_world_lib.mk
 
 # define tb top
-TOP_DESIGN_UNIT                 = hello_world_tb
+#TOP_DESIGN_UNIT                 = hello_world_tb
+TOP_DESIGN_UNIT                 = pipeline_tb
 
 # define tb src
 TB_SV_SRC                      += $(TB_DIR)/pipeline_tb.sv
