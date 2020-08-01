@@ -1,3 +1,4 @@
 # ignore build and run folders
 */build
 */run
+/*.code-workspace
