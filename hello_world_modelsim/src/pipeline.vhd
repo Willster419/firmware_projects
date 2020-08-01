@@ -17,9 +17,9 @@ entity pipeline is
   port (
     clk                : in  std_logic;
     rst                : in  std_logic;
-    input              : in  std_logic_vector;
+    input_data              : in  std_logic_vector;
     input_valid        : in  std_logic;
-    output             : out std_logic_vector;
+    output_data             : out std_logic_vector;
     output_valid       : out std_logic
   );
 end entity pipeline;
@@ -27,7 +27,7 @@ end entity pipeline;
 architecture rtl of pipeline is
   type pipeline_type is record
     valid : std_logic;
-    data  : std_logic_vector(input'range);
+    data  : std_logic_vector(input_data'range);
   end record pipeline_type;
 
   constant PIPELINE_ZERO : pipeline_type := (
@@ -50,11 +50,11 @@ begin
         pipeline_reset_loop : for i in 0 to PIPELINE_LENGTH-1 loop
           pipeline(i) <= PIPELINE_ZERO;
         end loop pipeline_reset_loop;
-        output       <= (output'range => '0');
+        output_data       <= (output_data'range => '0');
         output_valid <= '0';
       else
-        -- pipeline input
-        pipeline_in.data  <= input when (input_valid = '1') else (others => '0');
+        -- pipeline input_data
+        pipeline_in.data  <= input_data when (input_valid = '1') else (others => '0');
         pipeline_in.valid <= '1' when (input_valid = '1') else '0';
 
         -- pipeline shifting
@@ -64,8 +64,8 @@ begin
           pipeline(i-1) <= pipeline(i);
         end loop pipeline_shift_loop;
 
-        -- pipeline output
-        output       <= pipeline_out.data;
+        -- pipeline output_data
+        output_data       <= pipeline_out.data;
         output_valid <= pipeline_out.valid;
       end if;
     end if;
@@ -74,7 +74,7 @@ begin
   -- assert that the length is at least 2
   assert (PIPELINE_LENGTH > 1) report "Pipeline length must be at least 2" severity failure;
 
-  -- assert that the input and output lengths are equal
-  assert (input'length = output'length) report "Input and Output port must be same length" severity failure;
+  -- assert that the input_data and output_data lengths are equal
+  assert (input_data'length = output_data'length) report "Input and Output port must be same length" severity failure;
 
 end architecture rtl;
