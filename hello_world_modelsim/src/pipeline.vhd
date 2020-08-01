@@ -20,14 +20,14 @@ entity pipeline is
     input              : in  std_logic_vector;
     input_valid        : in  std_logic;
     output             : out std_logic_vector;
-    output_valid       : out std_logic;
+    output_valid       : out std_logic
   );
 end entity pipeline;
 
 architecture rtl of pipeline is
   type pipeline_type is record
     valid : std_logic;
-    data  : std_logic_vector(input'length);
+    data  : std_logic_vector(input'range);
   end record pipeline_type;
 
   constant PIPELINE_ZERO : pipeline_type := (
@@ -50,7 +50,7 @@ begin
         pipeline_reset_loop : for i in 0 to PIPELINE_LENGTH-1 loop
           pipeline(i) <= PIPELINE_ZERO;
         end loop pipeline_reset_loop;
-        output       <= (others => '0');
+        output       <= (output'range => '0');
         output_valid <= '0';
       else
         -- pipeline input
@@ -60,9 +60,9 @@ begin
         -- pipeline shifting
         -- if PIPELINE_LENGTH = 3, then indexs 2,1,0.
         -- then we want two loops: 2 -> 1, and 1 -> 0
-        pipeline_reset_loop : for i in PIPELINE_LENGTH-1 downto 1 loop
+        pipeline_shift_loop : for i in PIPELINE_LENGTH-1 downto 1 loop
           pipeline(i-1) <= pipeline(i);
-        end loop pipeline_reset_loop;
+        end loop pipeline_shift_loop;
 
         -- pipeline output
         output       <= pipeline_out.data;
@@ -73,5 +73,8 @@ begin
 
   -- assert that the length is at least 2
   assert (PIPELINE_LENGTH > 1) report "Pipeline length must be at least 2" severity failure;
+
+  -- assert that the input and output lengths are equal
+  assert (input'length = output'length) report "Input and Output port must be same length" severity failure;
 
 end architecture rtl;
